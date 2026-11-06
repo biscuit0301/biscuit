@@ -1,0 +1,32 @@
+name: research-checks
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+jobs:
+  core:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e ".[dev]"
+      - run: python -m ruff check .
+      - run: python -m unittest discover -s tests -v
+      - run: python -m build
+      - run: python -m biscuit_quant demo --config configs/default.toml --output artifacts/demo
+      - run: python -m biscuit_quant paper --data artifacts/demo/synthetic.csv --output artifacts/paper
+  optional-rl:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e ".[rl]"
+      - run: python -m unittest discover -s tests -v
+      - run: python -m biscuit_quant demo --output artifacts/demo
+      - run: python scripts/train_ppo.py --data artifacts/demo/synthetic.csv --timesteps 128 --output artifacts/ppo

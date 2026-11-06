@@ -1,0 +1,15 @@
+# Illustrative research assumptions; not a statement of current exchange/tax rules.
+[execution]
+initial_cash = 100000.0
+lot_size = 100
+commission_rate = 0.0003
+minimum_commission = 5.0
+sell_tax_rate = 0.0005
+slippage_bps = 5.0
+
+[features]
+lookback = 5
+
+[strategy]
+name = "momentum"
+threshold = 0.0
